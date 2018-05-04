@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class Main {
 
     static ArrayList<String> expressionList = new ArrayList();
-    static Map values = new HashMap<String, Double>();
+//    static Map values = new HashMap<String, Double>();
 
     static String inFileNm;
     public static void main(String[] args) throws IOException {
@@ -31,7 +31,7 @@ public class Main {
         }
         // после проверки корретности вводных данных преступаем к считыванию выражений
         try {
-            Calc(params);
+            calc(params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -41,40 +41,23 @@ public class Main {
     }
 
         // inFileNm = params.getInputFileName();
-    private static void Calc (Params params) throws IOException {
+    private static void calc (Params params) throws IOException {
             String key;
             Integer value;
-            String err;
+            String res;
             // чтение выражений
             ArrayList<String> expressionList = readFile(params.getInputFileName());
             // для записи в файл
             PrintWriter out = new PrintWriter(params.getOutFileName());
             // выполнение команд
             // просто присваивание мы записываем в карту
+            Parser parser = new Parser();
             for (String expres: expressionList){
-                // класс, который будет разбирать строку :
-                Parser parser = new Parser();
-                parser.assign(expres);
-                // если строка содержит присваивание, значит, это присваивание, необходимо заполнить крату значений
-                if (expres.contains(":=")){
-
-                    key = parser.GetKey();
-                    value = parser.GetValue();
-                    values.put(key, value);
-                    continue;
-                }
-                // если строка - вывод в файл
-                if (expres.contains("print")) {
-
-                    key = parser.GetKey();
-                    // если в карте есть ключь, выводим в файл значение
-                    if(values.containsKey(key)){
-                        out.println(values.get(key));
-                    } else { // выводим сообщение об ошибке
-                        err = "Constant " + key + " is not defined";
-                        out.println(err);
-                    }
-                    continue;
+                // получаем строку в которой находится либо расчитанное значение, либо сообщение об ошибке
+                //если res равно "", то в выражении было присваивание.
+                res = parser.assign(expres);
+                if (res != "") {
+                    out.println(res);
                 }
             }
             out.close();
